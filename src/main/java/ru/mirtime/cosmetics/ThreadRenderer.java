@@ -16,7 +16,7 @@ import java.util.*;
 public class ThreadRenderer {
 
     private static final Map<UUID, List<BlockDisplay>> activeThreads = new HashMap<>();
-    private static final float THICKNESS = 0.016f; // Толщина одной «ниточки» (1.6 см)
+    private static final float THICKNESS = 0.016f;
 
     public static void clear(UUID id) {
         List<BlockDisplay> list = activeThreads.remove(id);
@@ -48,7 +48,6 @@ public class ThreadRenderer {
             addCircle(segments, 0, floatY, 0, 0.36, 16, Material.SEA_LANTERN, tickTime);
             addCircle(segments, 0, floatY + 0.03, 0, 0.28, 12, Material.LIGHT_BLUE_STAINED_GLASS, -tickTime * 1.5);
         } else if ("chinahat".equals(hatId)) {
-            // Азиатская шляпа-конус из 16 лучевых нитей и обода
             int rays = 16;
             double r = 0.56;
             for (int i = 0; i < rays; i++) {
@@ -61,7 +60,6 @@ public class ThreadRenderer {
                 segments.add(new Segment(p1, top, i % 2 == 0 ? Material.SEA_LANTERN : Material.LIGHT_BLUE_CONCRETE));
             }
         } else if ("crown".equals(hatId)) {
-            // Корона Императора из 8 золотых зубцов-нитей
             int pts = 8;
             double r = 0.33;
             for (int i = 0; i < pts; i++) {
@@ -76,7 +74,6 @@ public class ThreadRenderer {
                 segments.add(new Segment(tip, p2, Material.GOLD_BLOCK));
             }
         } else if ("horns".equals(hatId)) {
-            // Изогнутые Демон-Рога из сегментированных алых нитей
             for (int s : new int[]{-1, 1}) {
                 Vector3f b = rotY(new Vector3f(0.22f * s, (float) (headY - 0.04), 0.05f), yawRad);
                 Vector3f m = rotY(new Vector3f(0.42f * s, (float) (headY + 0.16), 0.12f), yawRad);
@@ -85,7 +82,8 @@ public class ThreadRenderer {
                 segments.add(new Segment(m, t, Material.SHROOMLIGHT));
             }
         }
-        // 2. СПИНА ИЗ 3D-НИТОЧЕК (Крылья, Скрещённые Катаны, Физический Плащ)
+
+        // 2. СПИНА ИЗ 3D-НИТОЧЕК
         if ("wings".equals(backId)) {
             double flap = Math.sin(tickTime * 3.5) * 0.22;
             for (int side : new int[]{-1, 1}) {
@@ -125,7 +123,7 @@ public class ThreadRenderer {
             segments.add(new Segment(tr, bl, Material.BLUE_STAINED_GLASS));
         }
 
-        // 3. ЛЕТАЮЩИЙ 3D-ПИТОМЕЦ ИЗ НИТОЧЕК (Кристалл или Куб Пустоты)
+        // 3. ПИТОМЕЦ-КРИСТАЛЛ ИЗ НИТОЧЕК
         if ("crystal".equals(petId)) {
             double orbit = tickTime * 1.6;
             float cx = (float) (Math.cos(orbit) * 0.92);
@@ -143,13 +141,11 @@ public class ThreadRenderer {
                 segments.add(new Segment(p1, top, Material.SEA_LANTERN));
                 segments.add(new Segment(p1, bot, Material.AMETHYST_BLOCK));
             }
-            // Лёгкие световые частицы у кристалла
             p.getWorld().spawnParticle(Particle.DUST, base.clone().add(cx, cy, cz), 1, 0.05, 0.05, 0.05, new Particle.DustOptions(Color.fromRGB(0, 229, 255), 0.5f));
         }
 
         syncEntities(p, base, segments);
     }
-
     private static void syncEntities(Player p, Location base, List<Segment> segments) {
         List<BlockDisplay> pool = activeThreads.computeIfAbsent(p.getUniqueId(), k -> new ArrayList<>());
 

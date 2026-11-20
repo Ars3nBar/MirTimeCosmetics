@@ -41,7 +41,6 @@ public class ThreadRenderer {
         Location base = p.getLocation();
         double yawRad = Math.toRadians(-p.getBodyYaw());
 
-        // 1. ШАПКИ ИЗ 3D-НИТОЧЕК
         double headY = p.isSneaking() ? 1.55 : 1.85;
         if ("halo".equals(hatId)) {
             double floatY = headY + 0.16 + Math.sin(tickTime * 2.5) * 0.03;
@@ -83,7 +82,6 @@ public class ThreadRenderer {
             }
         }
 
-        // 2. СПИНА ИЗ 3D-НИТОЧЕК
         if ("wings".equals(backId)) {
             double flap = Math.sin(tickTime * 3.5) * 0.22;
             for (int side : new int[]{-1, 1}) {
@@ -96,18 +94,13 @@ public class ThreadRenderer {
                             (float) (1.45 - feather * 0.14),
                             (float) (-0.25 - Math.cos(spread + flap) * (len * 0.55))
                     );
-                    Vector3f tip = rotY(tipLocal, yawRad);
-                    segments.add(new Segment(root, tip, feather % 2 == 0 ? Material.SEA_LANTERN : Material.WHITE_CONCRETE));
+                    segments.add(new Segment(root, rotY(tipLocal, yawRad), feather % 2 == 0 ? Material.SEA_LANTERN : Material.WHITE_CONCRETE));
                 }
             }
         } else if ("katanas".equals(backId)) {
             for (int dir : new int[]{-1, 1}) {
-                Vector3f bottom = rotY(new Vector3f(-0.42f * dir, 0.58f, -0.22f), yawRad);
-                Vector3f top = rotY(new Vector3f(0.42f * dir, 1.72f, -0.22f), yawRad);
-                Vector3f guard1 = rotY(new Vector3f(0.22f * dir, 1.54f, -0.22f), yawRad);
-                Vector3f guard2 = rotY(new Vector3f(0.36f * dir, 1.44f, -0.22f), yawRad);
-                segments.add(new Segment(bottom, top, Material.PURPLE_CONCRETE));
-                segments.add(new Segment(guard1, guard2, Material.AMETHYST_BLOCK));
+                segments.add(new Segment(rotY(new Vector3f(-0.42f * dir, 0.58f, -0.22f), yawRad), rotY(new Vector3f(0.42f * dir, 1.72f, -0.22f), yawRad), Material.PURPLE_CONCRETE));
+                segments.add(new Segment(rotY(new Vector3f(0.22f * dir, 1.54f, -0.22f), yawRad), rotY(new Vector3f(0.36f * dir, 1.44f, -0.22f), yawRad), Material.AMETHYST_BLOCK));
             }
         } else if ("cape".equals(backId)) {
             double sway = 0.22 + Math.sin(tickTime * 3.0) * 0.08;
@@ -123,7 +116,6 @@ public class ThreadRenderer {
             segments.add(new Segment(tr, bl, Material.BLUE_STAINED_GLASS));
         }
 
-        // 3. ПИТОМЕЦ-КРИСТАЛЛ ИЗ НИТОЧЕК
         if ("crystal".equals(petId)) {
             double orbit = tickTime * 1.6;
             float cx = (float) (Math.cos(orbit) * 0.92);
@@ -153,12 +145,12 @@ public class ThreadRenderer {
             BlockDisplay extra = pool.remove(pool.size() - 1);
             if (extra != null && !extra.isDead()) extra.remove();
         }
-        while (pool.size()  {
-                entity.setBrightness(new Display.Brightness(15, 15));
-                entity.setInterpolationDelay(0);
-                entity.setInterpolationDuration(2);
-                entity.setTeleportDuration(2);
-            });
+        while (pool.size() < segments.size()) {
+            BlockDisplay bd = p.getWorld().spawn(base, BlockDisplay.class);
+            bd.setBrightness(new Display.Brightness(15, 15));
+            bd.setInterpolationDelay(0);
+            bd.setInterpolationDuration(2);
+            bd.setTeleportDuration(2);
             pool.add(bd);
         }
 
@@ -180,12 +172,7 @@ public class ThreadRenderer {
             Quaternionf rot = new Quaternionf().rotationTo(up, new Vector3f(diff).normalize());
             Vector3f offset = new Vector3f(seg.start).add(rot.transform(new Vector3f(-THICKNESS / 2f, 0, -THICKNESS / 2f)));
 
-            bd.setTransformation(new Transformation(
-                    offset,
-                    rot,
-                    new Vector3f(THICKNESS, len, THICKNESS),
-                    new Quaternionf()
-            ));
+            bd.setTransformation(new Transformation(offset, rot, new Vector3f(THICKNESS, len, THICKNESS), new Quaternionf()));
         }
     }
 
@@ -202,7 +189,8 @@ public class ThreadRenderer {
     }
 
     private static Vector3f rotY(Vector3f v, double rad) {
-        float cos = (float) Math.cos(rad), sin = (float) Math.sin(rad);
+        float cos = (float) Math.cos(rad);
+        float sin = (float) Math.sin(rad);
         return new Vector3f(v.x * cos + v.z * sin, v.y, -v.x * sin + v.z * cos);
     }
 

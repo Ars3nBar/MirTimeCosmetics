@@ -1,0 +1,11 @@
+name: MirTimeCosmetics
+version: '1.0.0'
+main: ru.mirtime.cosmetics.MirTimeCosmetics
+api-version: '1.21'
+softdepend:
+  - PlaceholderAPI
+  - PlayerPoints
+commands:
+  cosmetics:
+    description: Открыть магазин и гардероб 3D-аксессуаров MIR-TIME
+    aliases: [cos, aks, аксы, шапки]
